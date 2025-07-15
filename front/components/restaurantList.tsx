@@ -1,3 +1,7 @@
+'use client';
+
+import { useRouter } from "next/navigation";
+
 type Restaurant = {
   id: number;
   name: string;
@@ -19,7 +23,7 @@ const restaurants: Restaurant[] = [
     name: "Lookal Mar",
     description: "Cozinha contemporânea à beira-mar.",
     address: "Ilha de Luanda, Av. Murtala Mohamed",
-    image: "lookal.jpg",
+    image: "/lookal.jpg",
   },
   {
     id: 3,
@@ -38,7 +42,7 @@ const restaurants: Restaurant[] = [
   {
     id: 5,
     name: "O Naval",
-    description: "mbiente sofisticado e vista para a baía de Luanda.",
+    description: "Ambiente sofisticado e vista para a baía de Luanda.",
     address: "Av. Murtala Mohamed – Ilha do Cabo – Luanda, Angola",
     image: "/naval.webp",
   },
@@ -52,6 +56,25 @@ const restaurants: Restaurant[] = [
 ];
 
 const RestaurantList = () => {
+  const router = useRouter();
+
+  const handleReserve = (restaurantId: number) => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("userRole");
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    if (role !== "CLIENT") {
+      alert("Apenas clientes podem fazer reservas.");
+      return;
+    }
+
+    router.push(`/reserva/${restaurantId}`);
+  };
+
   return (
     <section className="flex-1 px-6 py-12 text-white">
       <h2 className="text-3xl font-semibold mb-8 text-[#D4AF37]">Restaurantes em destaque</h2>
@@ -70,7 +93,10 @@ const RestaurantList = () => {
               <h3 className="text-xl font-bold mb-1 text-[#D4AF37]">{restaurant.name}</h3>
               <p className="text-sm mb-1">{restaurant.description}</p>
               <p className="text-xs text-gray-300 italic mb-4">{restaurant.address}</p>
-              <button className="px-4 py-2 rounded-full bg-[#D4AF37] text-black hover:bg-black hover:text-[#D4AF37] border border-[#D4AF37] transition">
+              <button
+                onClick={() => handleReserve(restaurant.id)}
+                className="px-4 py-2 rounded-full bg-[#D4AF37] text-black hover:bg-black hover:text-[#D4AF37] border border-[#D4AF37] transition"
+              >
                 Fazer Reserva
               </button>
             </div>
