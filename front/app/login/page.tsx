@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/services/auth';
 
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
