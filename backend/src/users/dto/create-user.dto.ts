@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, IsOptional } from 'class-validator';
 
 export enum Role {
   CLIENT = 'CLIENT',
@@ -6,9 +6,6 @@ export enum Role {
 }
 
 export class CreateUserDto {
-  senha(password: any, arg1: number) {
-    throw new Error('Method not implemented.');
-  }
   @IsNotEmpty()
   @IsString()
   fullName: string;
@@ -26,6 +23,7 @@ export class CreateUserDto {
   @Length(6, 20, { message: 'A senha deve ter entre 6 e 20 caracteres' })
   password: string;
 
-  @IsEnum(Role)
-  role: Role;
+  @IsOptional() 
+  @IsEnum(Role, { message: 'Role deve ser CLIENT ou PROVIDER' })
+  role?: Role;
 }
