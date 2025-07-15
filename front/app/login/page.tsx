@@ -30,10 +30,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white px-4">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md space-y-4"
+   <div
+  className="relative min-h-screen flex items-center justify-center text-white px-4 bg-cover bg-center"
+  style={{ backgroundImage: `url('/restaurante1.jpg')` }}
+>
+  <div className="absolute inset-0 bg-black/60 z-0" />
+
+  
+  <form
+    onSubmit={handleLogin}
+    className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md space-y-4"
       >
         <h2 className="text-2xl font-bold text-center text-[#D4AF37]">Login</h2>
 
@@ -67,6 +73,17 @@ export default function LoginPage() {
         >
           Entrar
         </button>
+
+        <p className="text-sm text-center mt-4">
+          Não tem uma conta?{' '}
+          <button
+            type="button"
+            onClick={() => router.push('/cadastro')}
+            className="text-[#D4AF37] underline hover:text-white transition"
+          >
+            Cadastre-se
+          </button>
+        </p>
       </form>
     </div>
   );

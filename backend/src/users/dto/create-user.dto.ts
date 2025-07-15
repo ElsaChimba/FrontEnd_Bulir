@@ -6,6 +6,9 @@ export enum Role {
 }
 
 export class CreateUserDto {
+  senha(password: any, arg1: number) {
+    throw new Error('Method not implemented.');
+  }
   @IsNotEmpty()
   @IsString()
   fullName: string;
