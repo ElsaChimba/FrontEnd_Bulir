@@ -6,7 +6,7 @@ import { login } from '@/services/auth';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [emailOrNif, setEmailOrNif] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -15,11 +15,11 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const data = await login(emailOrNif, password);
+      const data = await login(email, password);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      if (data.user.role === 'CLIENTE') {
+      if (data.user.role === 'CLIENT') {
         router.push('/cliente');
       } else {
         router.push('/adm');
@@ -30,16 +30,15 @@ export default function LoginPage() {
   };
 
   return (
-   <div
-  className="relative min-h-screen flex items-center justify-center text-white px-4 bg-cover bg-center"
-  style={{ backgroundImage: `url('/restaurante1.jpg')` }}
->
-  <div className="absolute inset-0 bg-black/60 z-0" />
+    <div
+      className="relative min-h-screen flex items-center justify-center text-white px-4 bg-cover bg-center"
+      style={{ backgroundImage: `url('/restaurante1.jpg')` }}
+    >
+      <div className="absolute inset-0 bg-black/60 z-0" />
 
-  
-  <form
-    onSubmit={handleLogin}
-    className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md space-y-4"
+      <form
+        onSubmit={handleLogin}
+        className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md space-y-4"
       >
         <h2 className="text-2xl font-bold text-center text-[#D4AF37]">Login</h2>
 
@@ -49,8 +48,8 @@ export default function LoginPage() {
           <label className="block mb-1 text-sm">E-mail ou NIF</label>
           <input
             type="text"
-            value={emailOrNif}
-            onChange={(e) => setEmailOrNif(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 rounded bg-white/20 text-white outline-none"
             required
           />
