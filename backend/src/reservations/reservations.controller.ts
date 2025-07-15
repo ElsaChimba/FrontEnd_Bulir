@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Request,
-  Get,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Req } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -13,10 +6,10 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class ReservationsController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() body: { serviceId: string }, @Request() req) {
-    return this.reservationsService.create(body.serviceId, req.user);
+  @UseGuards(new JwtAuthGuard('jwt'))
+  create(@Body() body: { serviceId: string; tableTypeId: string }, @Req() req) {
+    return this.reservationsService.create(body.serviceId, body.tableTypeId, req.user);
   }
 
   @UseGuards(JwtAuthGuard)

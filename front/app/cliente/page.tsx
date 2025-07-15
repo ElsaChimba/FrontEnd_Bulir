@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 type Service = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
-  providerId: number;
+  providerId: string;
 };
 
 const ClientePage = () => {
@@ -19,7 +19,8 @@ const ClientePage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole');
+    const user = localStorage.getItem('user');
+    const role = user ? JSON.parse(user).role : null;
 
     if (!token || role !== 'CLIENT') {
       router.push('/login');
@@ -28,11 +29,14 @@ const ClientePage = () => {
 
     const fetchServices = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/services`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setServices(response.data);
       } catch (error) {
         console.error('Erro ao buscar serviços', error);

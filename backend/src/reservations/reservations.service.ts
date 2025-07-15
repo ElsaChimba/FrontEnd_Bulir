@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload } from '../auth/jwt-payload.type';
 
@@ -10,7 +6,6 @@ import { JwtPayload } from '../auth/jwt-payload.type';
 export class ReservationsService {
   constructor(private prisma: PrismaService) {}
 
-  
   async findAll() {
     return this.prisma.reservation.findMany({
       include: {
@@ -32,6 +27,13 @@ export class ReservationsService {
             price: true,
           },
         },
+        tableType: {
+          select: {
+            name: true,
+            price: true,
+            capacity: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -39,9 +41,9 @@ export class ReservationsService {
     });
   }
 
-  async create(serviceId: string, user: JwtPayload) {
+  async create(serviceId: string, tableTypeId: string, user: JwtPayload) {
     if (user.role !== 'CLIENT') {
-      throw new ForbiddenException('Apenas clientes podem fazer reservas.');
+      throw new ForbiddenException();
     }
 
     const service = await this.prisma.service.findUnique({
@@ -49,28 +51,21 @@ export class ReservationsService {
       include: { provider: true },
     });
 
-    if (!service) {
-      throw new NotFoundException('Serviço não encontrado.');
-    }
-
-    const client = await this.prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
+    const table = await this.prisma.tableType.findUnique({
+      where: { id: tableTypeId },
     });
 
-    if (!client) {
-      throw new NotFoundException('Cliente não encontrado.');
+    if (!service || !table) {
+      throw new NotFoundException();
     }
 
-    const reservation = await this.prisma.reservation.create({
+    return this.prisma.reservation.create({
       data: {
-        clientId: client.id,
+        clientId: user.id,
         providerId: service.provider.id,
         serviceId: service.id,
+        tableTypeId: table.id,
       },
     });
-
-    return reservation;
   }
 }

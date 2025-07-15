@@ -4,38 +4,39 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 
+type TableType = {
+  id: string;
+  name: string;
+  capacity: number;
+  price: number;
+};
+
 const ReservaPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [tableTypes, setTableTypes] = useState<TableType[]>([]);
+  const [selectedTableId, setSelectedTableId] = useState('');
   const [message, setMessage] = useState('');
-  const [date, setDate] = useState('');
-  const [restaurant, setRestaurant] = useState<any>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole');
-
-    if (!token || role !== 'CLIENT') {
-      router.push('/login');
-    }
-
-    const found = mockRestaurants.find(r => r.id === Number(id));
-    setRestaurant(found);
-  }, [id, router]);
+    const fetchTableTypes = async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/tables`);
+      setTableTypes(response.data);
+    };
+    fetchTableTypes();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
-
     try {
       const token = localStorage.getItem('token');
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/reservations`,
         {
-          serviceId: Number(id),
-          date,
+          serviceId: id,
+          tableTypeId: selectedTableId,
         },
         {
           headers: {
@@ -44,69 +45,41 @@ const ReservaPage = () => {
         }
       );
       setMessage('Reserva realizada com sucesso!');
-    } catch (error) {
+    } catch {
       setMessage('Erro ao realizar reserva.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!restaurant) return <p className="text-white p-10">Carregando restaurante...</p>;
-
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <h1 className="text-2xl font-bold mb-4">Fazer reserva em {restaurant.name}</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col">
-          Data da reserva:
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="p-2 rounded bg-white/10 text-white"
-            required
-          />
-        </label>
-
+      <h1 className="text-2xl font-bold mb-4">Selecionar tipo de mesa</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <select
+          value={selectedTableId}
+          onChange={(e) => setSelectedTableId(e.target.value)}
+          className="w-full p-2 bg-white/20 text-white rounded"
+          required
+        >
+          <option value="">Selecione uma mesa</option>
+          {tableTypes.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name} - {t.capacity} pessoas - {t.price} kz
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           disabled={loading}
-          className="bg-[#D4AF37] text-black py-2 px-4 rounded hover:bg-black hover:text-[#D4AF37] transition"
+          className="w-full bg-[#D4AF37] text-black py-2 rounded hover:bg-black hover:text-[#D4AF37] transition"
         >
           {loading ? 'Reservando...' : 'Confirmar Reserva'}
         </button>
-
-        {message && <p className="mt-2 text-sm">{message}</p>}
+        {message && <p>{message}</p>}
       </form>
     </div>
   );
 };
 
 export default ReservaPage;
-
-const mockRestaurants = [
-  {
-    id: 1,
-    name: "Restaurante Tamariz",
-  },
-  {
-    id: 2,
-    name: "Lookal Mar",
-  },
-  {
-    id: 3,
-    name: "Cais de Quatro",
-  },
-  {
-    id: 4,
-    name: "Miami Beach",
-  },
-  {
-    id: 5,
-    name: "O Naval",
-  },
-  {
-    id: 6,
-    name: "Bessangana",
-  },
-];
