@@ -8,18 +8,18 @@ datasource db {
 }
 
 model User {
-  id                     String         @id @default(uuid())
-  fullName               String
-  nif                    String         @unique
-  email                  String         @unique
-  password               String
-  role                   Role           @default(CLIENT)
-  balance                Float          @default(0)
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
-  services               Service[]      @relation("ServiceProvider")
-  clientReservations     Reservation[]  @relation("ClientReservations")
-  providerReservations   Reservation[]  @relation("ProviderReservations")
+  id                   String         @id @default(uuid())
+  fullName             String
+  nif                  String         @unique
+  email                String         @unique
+  password             String
+  role                 Role           @default(CLIENT)
+  balance              Float          @default(0)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  services             Service[]      @relation("ServiceProvider")
+  clientReservations   Reservation[]  @relation("ClientReservations")
+  providerReservations Reservation[]  @relation("ProviderReservations")
 }
 
 model Service {
@@ -33,26 +33,19 @@ model Service {
   reservations  Reservation[]
 }
 
-model TableType {
-  id            String        @id @default(uuid())
-  name          String
-  capacity      Int
-  price         Float
-  createdAt     DateTime      @default(now())
-  reservations  Reservation[]
-}
-
 model Reservation {
-  id            String      @id @default(uuid())
-  clientId      String
-  providerId    String
-  serviceId     String
-  tableTypeId   String
-  createdAt     DateTime    @default(now())
-  client        User        @relation("ClientReservations", fields: [clientId], references: [id])
-  provider      User        @relation("ProviderReservations", fields: [providerId], references: [id])
-  service       Service     @relation(fields: [serviceId], references: [id])
-  tableType     TableType   @relation(fields: [tableTypeId], references: [id])
+  id          String     @id @default(uuid())
+  clientId    String
+  providerId  String
+  serviceId   String
+  details     Json?
+  createdAt   DateTime   @default(now())
+  
+
+
+  client      User       @relation("ClientReservations", fields: [clientId], references: [id])
+  provider    User       @relation("ProviderReservations", fields: [providerId], references: [id])
+  service     Service    @relation(fields: [serviceId], references: [id])
 }
 
 enum Role {

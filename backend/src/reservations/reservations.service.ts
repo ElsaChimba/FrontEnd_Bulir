@@ -10,28 +10,27 @@ export class ReservationsService {
     return this.prisma.reservation.findMany({
       include: {
         client: {
-          select: {
-            fullName: true,
-            email: true,
-          },
+          select: { fullName: true, email: true },
         },
         provider: {
-          select: {
-            fullName: true,
-            email: true,
-          },
+          select: { fullName: true, email: true },
         },
+        service: {
+          select: { name: true, price: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findByClient(user: JwtPayload) {
+    return this.prisma.reservation.findMany({
+      where: { clientId: user.id },
+      include: {
         service: {
           select: {
             name: true,
             price: true,
-          },
-        },
-        tableType: {
-          select: {
-            name: true,
-            price: true,
-            capacity: true,
           },
         },
       },
@@ -41,9 +40,9 @@ export class ReservationsService {
     });
   }
 
-  async create(serviceId: string, tableTypeId: string, user: JwtPayload) {
+  async create(serviceId: string, details: Record<string, any>, user: JwtPayload) {
     if (user.role !== 'CLIENT') {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Apenas clientes podem fazer reservas.');
     }
 
     const service = await this.prisma.service.findUnique({
@@ -51,12 +50,8 @@ export class ReservationsService {
       include: { provider: true },
     });
 
-    const table = await this.prisma.tableType.findUnique({
-      where: { id: tableTypeId },
-    });
-
-    if (!service || !table) {
-      throw new NotFoundException();
+    if (!service) {
+      throw new NotFoundException('Serviço não encontrado');
     }
 
     return this.prisma.reservation.create({
@@ -64,7 +59,7 @@ export class ReservationsService {
         clientId: user.id,
         providerId: service.provider.id,
         serviceId: service.id,
-        tableTypeId: table.id,
+        details, 
       },
     });
   }

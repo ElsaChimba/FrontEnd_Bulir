@@ -1,42 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import axios from 'axios';
 
-type TableType = {
-  id: string;
-  name: string;
-  capacity: number;
-  price: number;
-};
+const mesas = [
+  { label: 'Mesa para 2', capacity: 2, price: 5000 },
+  { label: 'Mesa para 5', capacity: 5, price: 12000 },
+  { label: 'Mesa para 14', capacity: 14, price: 25000 },
+];
 
 const ReservaPage = () => {
   const { id } = useParams();
-  const router = useRouter();
+  const [selectedMesa, setSelectedMesa] = useState(mesas[0]);
   const [loading, setLoading] = useState(false);
-  const [tableTypes, setTableTypes] = useState<TableType[]>([]);
-  const [selectedTableId, setSelectedTableId] = useState('');
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    const fetchTableTypes = async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/tables`);
-      setTableTypes(response.data);
-    };
-    fetchTableTypes();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
+    setMessage('');
     try {
       const token = localStorage.getItem('token');
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/reservations`,
         {
           serviceId: id,
-          tableTypeId: selectedTableId,
+          details: selectedMesa,
         },
         {
           headers: {
@@ -45,39 +35,58 @@ const ReservaPage = () => {
         }
       );
       setMessage('Reserva realizada com sucesso!');
+      setSuccess(true);
     } catch {
       setMessage('Erro ao realizar reserva.');
+      setSuccess(false);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-8 max-w-xl mx-auto text-white">
-      <h1 className="text-2xl font-bold mb-4">Selecionar tipo de mesa</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center px-4"
+      style={{ backgroundImage: "url('/restaurante1.jpg')" }}
+    >
+      <div className="absolute inset-0 bg-black/60 z-0" />
+      <div className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md text-white shadow-lg">
+        <h1 className="text-3xl font-bold mb-6 text-center text-[#D4AF37]">Reservar Mesa</h1>
+
+        <label className="block mb-2 text-sm font-semibold">Selecione a mesa:</label>
         <select
-          value={selectedTableId}
-          onChange={(e) => setSelectedTableId(e.target.value)}
-          className="w-full p-2 bg-white/20 text-white rounded"
-          required
+          value={selectedMesa.label}
+          onChange={(e) => {
+            const mesa = mesas.find((m) => m.label === e.target.value);
+            if (mesa) setSelectedMesa(mesa);
+          }}
+          className="w-full p-2 rounded bg-white/20 text-white mb-6 outline-none focus:ring-2 focus:ring-[#D4AF37] transition"
         >
-          <option value="">Selecione uma mesa</option>
-          {tableTypes.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} - {t.capacity} pessoas - {t.price} kz
+          {mesas.map((mesa) => (
+            <option key={mesa.label} value={mesa.label}>
+              {mesa.label} - {mesa.capacity} pessoas - {mesa.price} kz
             </option>
           ))}
         </select>
+
         <button
-          type="submit"
+          onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-[#D4AF37] text-black py-2 rounded hover:bg-black hover:text-[#D4AF37] transition"
+          className="w-full bg-[#D4AF37] text-black font-bold py-2 rounded hover:bg-black hover:text-[#D4AF37] border border-[#D4AF37] transition"
         >
           {loading ? 'Reservando...' : 'Confirmar Reserva'}
         </button>
-        {message && <p>{message}</p>}
-      </form>
+
+        {message && (
+          <p
+            className={`mt-4 text-center text-sm font-medium ${
+              success ? 'text-green-400' : 'text-red-400'
+            }`}
+          >
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

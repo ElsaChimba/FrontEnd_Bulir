@@ -59,11 +59,12 @@ const RestaurantList = () => {
   const router = useRouter();
 
   const handleReserve = (restaurantId: number) => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("userRole");
+   const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    const role = user ? JSON.parse(user).role : null;
 
     if (!token) {
-      router.push("/login");
+      router.push("/");
       return;
     }
 

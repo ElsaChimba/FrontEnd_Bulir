@@ -23,14 +23,14 @@ const ClientePage = () => {
     const role = user ? JSON.parse(user).role : null;
 
     if (!token || role !== 'CLIENT') {
-      router.push('/login');
+      router.push('/');
       return;
     }
 
     const fetchServices = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/services`,
+          `${process.env.NEXT_PUBLIC_API_URL}/reservations`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

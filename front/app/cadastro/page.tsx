@@ -53,7 +53,7 @@ export default function CadastroPage() {
                 {success && (
                     <p className="text-green-400 text-sm text-center">
                         Usuário criado com sucesso.{' '}
-                        <Link href="/login" className="underline text-[#D4AF37]">
+                        <Link href="/" className="underline text-[#D4AF37]">
                             Faça login aqui
                         </Link>
                     </p>
